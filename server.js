@@ -57,6 +57,7 @@ app.get("/", (req, res) => {
   }
 });
 
+//user can implant new kidney
 app.post("/", (req, res) => {
   const userName = req.body.name;
   const isHealthy = req.body.isHealthy;
@@ -76,7 +77,43 @@ app.post("/", (req, res) => {
   }
 });
 
-app.put("/", (req, res) => {});
+//if a kidney is unHealthy replace it with healty one
+app.put("/", (req, res) => {
+  let userName = req.query.name;
+  let userData = users.find((u) => u.name == userName);
+  if (userData) {
+    userData.kidney.map((u) => (u.healthy = true));
+    res.status(200).json({
+      msg: "Done",
+      userData,
+    });
+  } else {
+    res.status(404).json({
+      msg: "User not found!!",
+    });
+  }
+});
+
+//delete  unhealthy kidney which are not functioning
+app.delete("/", (req, res) => {
+  let userName = req.query.name;
+  let userData = users.find((u) => u.name == userName);
+  if (userData) {
+    // this will return all the healthy kidney
+    let newkidney = userData.kidney.filter((u) => u.healthy);
+
+    // userData ---> kidney <---> newKidney
+    userData.kidney = newkidney;
+    res.status(200).json({
+      msg: "deleted unHealty successfully....",
+      userData,
+    });
+  } else {
+    res.status(404).json({
+      msg: "User not found!!",
+    });
+  }
+});
 
 app.listen(3000, () => {
   console.log(`The ports is running over port number ${PORT}`);
